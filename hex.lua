@@ -60,7 +60,7 @@ end
 local plr = game.Players.LocalPlayer -- getting local player
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
-local Mouse = LocalPlayer:GetMouse()
+local Mouse = plr:GetMouse()
 local CurrentCamera = Workspace.CurrentCamera
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -68,10 +68,9 @@ local GameName = game:GetService("MarketplaceService"):GetProductInfo(game.Place
 local Thing = game:HttpGet(string.format("https://thumbnails.roblox.com/v1/users/avatar?userIds=%d&size=180x180&format=Png&isCircular=true", game.Players.LocalPlayer.UserId))
 Thing = game:GetService("HttpService"):JSONDecode(Thing).data[1]
 local AvatarImage = Thing.imageUrl
-local HWID = game:GetService("RbxAnalysticsService"):GetClientId():
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId();
 if player.UserId == 3426039495 or 2296593376 then 
-    ip = 'PROTECTED'
-	hwid = 'PROTECTED'
+	HWID = 'PROTECTED'
 end    
 local premium = false
 local alt = true
@@ -197,9 +196,6 @@ local section1 = tab:section({name = "Silent Aim",side = "left",size = 700})
 section1:toggle({name = "Enabled",def = false,callback = function(value)
 	tog = value
 	print(tog)
-
-	if tog == true then do
-		
 end})
 
 
@@ -265,30 +261,7 @@ section1:slider({name = "Circle Thickness",def = 1, max = 10,min = 1,rounding = 
 	_G.circle.Thickness = value
 end})
 
-section1:toggle({name = "Closest to mouse", def = false,callback = function(value)
-	if tog == true then
-		local plr = game.Players.LocalPlayer
-        local mouse = plr:GetMouse()
-        local Runserv = game:GetService("RunService")
 
-Runserv.RenderStepped:Connect(function()
-	local closestplr
-	local closestpos = 1e+100
-	for i,v in pairs(game.Players:GetPlayers()) do
-		if v.Character then
-			local mag = (mouse.Hit.p - v.Character.HumanoidRootPart.CFrame.Position).Magnitude
-			if  mag < closestpos then
-				closestplr = v
-				closestpos = mag
-			end
-		end
-	end
-	
-	if closestplr then
-		-- target == closestplr
-	end
-end)
-end})
 
 local rage = window:page({name = "Rage"})
 
@@ -384,6 +357,16 @@ Teleports2:button({name = "TP to saved POS",callback = function()
     character.HumanoidRootPart.CFrame = CFrame.new(_G.CurrentPos)
 end})
 
+section1:textbox({name = "Teleport To Player",def = "Username",placeholder = "Player Full Username",callback = function(value)
+	print(value)
+    
+	print("yo")
+
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players[value].Character.HumanoidRootPart.Position)
+    wait(0.5)
+
+end})
+
 
 local Misc = window:page({name = "Misc"})
 
@@ -404,28 +387,53 @@ MiscMisc:button({name = "Reset to Default",callback = function()
     camera.FieldOfView = 60
 end})
 
+MiscMisc:button({name = "Swagmode Crash",callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/22kristina/dhcrash_gen2/main/crash", true))()
+end})
+
+MiscMisc:button({name = "No Recoil",callback = function()
+    local CurrentFocus = game:GetService("Workspace").CurrentCamera.CFrame
+    game:GetService("Workspace").CurrentCamera:Destroy()
+    local Instance = Instance.new("Camera", game:GetService("Workspace"))
+    Instance.CameraSubject = game:GetService("Players").LocalPlayer.Character.Humanoid
+    Instance.CameraType = Enum.CameraType.Custom
+    Instance.CFrame = CurrentFocus
+end})
+
 MiscToggles:toggle({name = "Anti Stomp", def = false,callback = function(value)
 	if tog == true then do
 		local loop = true
-        _G.loop = loop
 
         while loop do
         wait()
         local char = game.Players.LocalPlayer.Character
         for i,v in pairs(char:GetChildren()) do
-        if v:IsA("MeshPart") then
-        if char.BodyEffects["K.O"].Value == true then
-        v:Destroy()
+           if v:IsA("MeshPart") then
+              if char.BodyEffects["K.O"].Value == true then
+                v:Destroy()
         end
         end
         end
         end
         end
 	elseif tog == false then do
-	   print("off") 
+		local loop = true
+
+        while loop do
+        wait()
+        local char = game.Players.LocalPlayer.Character
+        for i,v in pairs(char:GetChildren()) do
+            if v:IsA("MeshPart") then
+               if char.BodyEffects["K.O"].Value == true then
+        print("hai")
+        end
+        end
+        end
+        end
+        end
 	  end
-    end
 end})
+
 
 
 MiscToggles:toggle({name = "Auto Stomp", def = false,callback = function(value)
@@ -456,12 +464,37 @@ MiscToggles:toggle({name = "Anti Bag", def = false,callback = function(value)
 end})
 
 MiscToggles:toggle({name = "Noclip", def = false,callback = function(value)
-	
+	if tog == true then
+		function NoClipLoop()
+			for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+				if child:IsA("BasePart") and child.CanCollide == true then
+					child.CanCollide = false
+				end
+			end
+		end
+		
+		 _G.Noclipping = game:GetService("RunService").Stepped:Connect(NoClipLoop)
+    elseif tog == false then
+		_G.Noclipping:Disconnect()
+	end	
 end})
 
 MiscToggles:toggle({name = "Anti Grab", def = false,callback = function(value)
 	tog = value
 	print(tog)
+end})
+
+MiscMisc:button({name = "Fast Mode",callback = function()
+    for _,v in pairs(workspace:GetDescendants()) do
+		if v.ClassName == "Part"
+		or v.ClassName == "SpawnLocation"
+		or v.ClassName == "WedgePart"
+		or v.ClassName == "Terrain"
+		or v.ClassName == "MeshPart" then
+		v.Material = "Plastic"
+		end
+		end
+		
 end})
 
 MiscToggles:toggle({name = "Anti Fling", def = false,callback = function(value)
@@ -481,6 +514,32 @@ MiscToggles:toggle({name = "Disable Smoke", def = false,callback = function(valu
 	tog = value
 	print(tog)
 end})
+
+MiscToggles:toggle({name = "Anti Slow", def = false,callback = function(value)
+	tog = value
+	print(tog)
+    if tog == true then
+	    local mt = getrawmetatable(game)
+        local backup
+        backup = hookfunction(mt.__newindex, newcclosure(function(self, key, value)
+        if key == "WalkSpeed" and value < 16 then
+        value = 16
+        end
+        return backup(self, key, value)
+        end))
+        
+	elseif tog == false then
+		local mt = getrawmetatable(game)
+        local backup
+        backup = hookfunction(mt.__newindex, newcclosure(function(self, key, value)
+        if key == "WalkSpeed" and value < 16 then
+        print("No")
+        end
+        return backup(self, key, value)
+        end))
+        end
+	end})			
+
 
 MiscToggles:toggle({name = "Disable Flash", def = false,callback = function(value)
 	tog = value
